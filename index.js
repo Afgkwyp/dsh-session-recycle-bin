@@ -22,7 +22,7 @@
  * 该 seam 时退回 `webServer.register`（改用不带 `/api` 前缀的路径，`/api` 属于
  * RPC 网关）。浏览器半会自动探测可用的前缀。
  */
-import { mkdir, readFile, readdir, rename, rm, stat as fsStat, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rename, rm, rmdir, stat as fsStat, writeFile } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import { homedir } from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -38,7 +38,7 @@ const STOP_WAIT_MS = 8000
 /** 读取标题时最多探测多少个冷会话（避免打开很多会话）。 */
 const TITLE_PROBE_LIMIT = 30
 /** 宿主半构建标记：写进激活记录，用来确认运行的是哪一版代码。 */
-const BUILD = 'recycle-bin@2'
+const BUILD = 'recycle-bin@3'
 
 /** 本宿主插件需要的服务。 */
 export const inject = ['connection', 'sessionPersistence', 'workspaceRegistry']
@@ -92,6 +92,8 @@ export function apply(ctx, config) {
   const seam = registerRoutes(ctx, runtime)
   ctx.logger?.info?.(`session-recycle-bin: host half active (seam ${seam}, home ${home})`)
   void recordBoot(runtime, seam)
+  /* 激活时顺手清掉历史遗留的空「项目目录」（只有真正空的才会被删）。 */
+  void pruneEmptyProjectDirs(runtime)
 }
 
 /**
@@ -126,6 +128,61 @@ function resolveHome(config) {
   if (typeof config?.home === 'string' && config.home.length > 0) return config.home
   const env = typeof process.env.DSH_HOME === 'string' ? process.env.DSH_HOME : ''
   return env.length > 0 ? env : join(homedir(), '.dsh')
+}
+
+/**
+ * 会话目录删除后，如果它所在的「项目目录」（`<sessions>/<项目>/`）已经空了，就一并删掉，
+ * 避免磁盘上留一串空的 `--C-Users-...--` 文件夹。只处理 sessions 根的直接子目录，
+ * 且只在目录确实为空时删除。
+ * @param {string} home DSH 数据根目录
+ * @param {string} sessionDirectory 刚被删除的会话目录
+ * @param {string[]} [removed] 已删除项记录数组（用于报告）
+ * @returns {Promise<void>}
+ */
+async function pruneEmptyProjectDir(home, sessionDirectory, removed) {
+  const sessionsRoot = join(home, 'sessions')
+  const project = dirname(sessionDirectory)
+  /* 只认 `<sessions>/<项目>` 这一层，别的地方一律不动。 */
+  if (dirname(project) !== sessionsRoot) return
+  try {
+    const entries = await readdir(project)
+    if (entries.length > 0) return
+    await rmdir(project)
+    removed?.push(`session-project:${basename(project)}`)
+  } catch {
+    /* 目录不空、已被删除或不可读时保持原样 */
+  }
+}
+
+/**
+ * 清理历史遗留的空项目目录（例如插件装好之前手动删会话留下的空文件夹）。
+ * 只删除 `<sessions>` 下真正为空的一级目录，sessions 根本身永不删除。
+ * @param {Runtime} runtime 运行时句柄
+ * @returns {Promise<void>}
+ */
+async function pruneEmptyProjectDirs(runtime) {
+  const sessionsRoot = join(runtime.home, 'sessions')
+  let projects
+  try {
+    projects = await readdir(sessionsRoot, { withFileTypes: true })
+  } catch {
+    return
+  }
+  let pruned = 0
+  for (const entry of projects) {
+    if (!entry.isDirectory()) continue
+    const directory = join(sessionsRoot, entry.name)
+    try {
+      if ((await readdir(directory)).length > 0) continue
+      await rmdir(directory)
+      pruned += 1
+    } catch {
+      /* 竞态、权限或目录不空都保持原样 */
+    }
+  }
+  if (pruned > 0) {
+    runtime.ctx.logger?.info?.(`session-recycle-bin: pruned ${pruned} empty session project director${pruned === 1 ? 'y' : 'ies'}`)
+  }
 }
 
 /**
@@ -600,6 +657,8 @@ async function purgeSession(runtime, sessionId, catalog, header) {
         try {
           await rm(directory, { recursive: true, force: true })
           removed.push(`session-dir:${target}`)
+          /* 项目目录空了就一起收掉，别在 sessions 下留空文件夹。 */
+          await pruneEmptyProjectDir(runtime.home, directory, removed)
         } catch (error) {
           warnings.push({ id: target, what: 'session-dir', message: messageOf(error) })
         }
