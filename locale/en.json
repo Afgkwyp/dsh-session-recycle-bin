@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Session Recycle Bin",
+    "description": "A trash button in the session header and a \"Delete session\" row in the sidebar menu move a session into the recycle bin (archiving keeps its log); a Settings page manages archived sessions, restoring them or permanently deleting their logs on disk, with multi-select and batch cleanup."
+  }
+}

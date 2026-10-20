@@ -1,0 +1,58 @@
+{
+  "name": "dsh-session-recycle-bin",
+  "version": "1.0.0",
+  "description": "Session recycle bin for DeepSeek Harness: a header trash button and a sidebar menu row move a session into the recycle bin (archive, log kept); a Settings page lists archived sessions and restores them or permanently deletes their logs, with batch cleanup.",
+  "type": "module",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "session",
+    "archive",
+    "recycle-bin",
+    "delete"
+  ],
+  "author": "Afgkwyp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Afgkwyp/dsh-session-recycle-bin.git"
+  },
+  "homepage": "https://github.com/Afgkwyp/dsh-session-recycle-bin#readme",
+  "bugs": {
+    "url": "https://github.com/Afgkwyp/dsh-session-recycle-bin/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-workspace",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  }
+}

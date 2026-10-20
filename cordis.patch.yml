@@ -1,0 +1,6 @@
+# dsh-session-recycle-bin bundle patch: one Host row whose client half is declared
+# in package.json (`dsh.client`). The plugin exports its own `inject` list, so the
+# row needs nothing else here.
+- insert:
+    - id: session-recycle-bin
+      name: 'dsh-session-recycle-bin'

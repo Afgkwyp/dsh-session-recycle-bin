@@ -1,0 +1,14 @@
+# Dependencies (a DSH profile links this package; it declares none of its own)
+node_modules/
+
+# Local runtime artifacts
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
