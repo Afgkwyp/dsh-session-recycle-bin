@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-recycle-bin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Session recycle bin for DeepSeek Harness: a header trash button and a sidebar menu row move a session into the recycle bin (archive, log kept); a Settings page lists archived sessions and restores them or permanently deletes their logs, with batch cleanup.",
   "type": "module",
   "scripts": {

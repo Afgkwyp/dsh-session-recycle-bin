@@ -44,7 +44,9 @@ DSH 自带的会话菜单只有 **重命名 / 分叉 / 归档**：归档只是�
 - **还原**：一键移出归档集合，会话回到侧栏原来的位置——磁盘文件从未被触碰。
 - **永久删除**：真正删除磁盘数据（见下一节），并从归档 / 置顶 / 工作区成员中摘除引用，
   最后广播 `api-session/removed` 让侧栏当帧移除该行。
-- **批量清理**：多选批量还原 / 批量永久删除；「删除 30 天前的会话」；「清空回收站」。
+- **批量清理按"作用范围"分开摆**：工具栏只放**对所选**的动作（还原所选 / 永久删除所选）；
+  两个**作用于整个回收站**的动作收进列表下方的「危险操作」区，各带一句适用范围说明——
+  「删除 30 天前的会话」和「清空回收站（N 个）」不会再和"删所选"混在同一行。
   按天清理只删「有可靠时间依据且确实够老」的会话：优先用删除记录，没有记录时用日志文件
   的最后修改时间；两者都拿不到的会话一律保留，并在结果里报告数量。
 - **确认不会认错对象**：单条删除在该行**行内确认**（问句里就写着会话标题）；
@@ -209,6 +211,8 @@ node test/host-test.mjs   # 或 npm test
 
 ### 更新日志
 
+- **1.0.3** — 按作用范围拆分清理动作：工具栏只保留「还原所选 / 永久删除所选」，
+  「删除 30 天前的会话」「清空回收站」移入列表下方的「危险操作」区，并各自标注适用范围。
 - **1.0.2** — 删除确认写明目标（单条改为行内确认，批量卡写明条数/标题，确认期间锁住其它行）；
   「删除 30 天前的会话」修正时间判定，时间未知的条目不再被误删；工具栏分组避免「清空回收站」掉行；
   设置页去掉 `locate()` 等实现术语、合并数据目录展示；子代理数量改为标签显示；禁用态按钮去红。
@@ -241,10 +245,13 @@ its data from disk.
 "Delete" means *archive*, so it is always undoable. Only "Delete permanently" touches the
 disk, and it asks first.
 
-- **Batch cleanup**: multi-select restore and multi-select permanent delete, plus
-  "delete sessions older than 30 days" and "empty the recycle bin". Age-based cleanup only
-  removes sessions with a trustworthy date — the recorded deletion time, or the log file's
-  last-modified time as a fallback; sessions with neither are kept and reported.
+- **Batch cleanup is grouped by scope**: the toolbar only holds actions that apply to the
+  selection (restore selected / delete selected); the two actions that apply to the whole bin
+  live in a **Danger zone** below the list, each with a one-line explanation — so
+  "delete sessions older than 30 days" and "empty the recycle bin (N)" can no longer be
+  confused with "delete the selected ones". Age-based cleanup only removes sessions with a
+  trustworthy date — the recorded deletion time, or the log file's last-modified time as a
+  fallback; sessions with neither are kept and reported.
 - **The confirmation always names its target**: deleting one session opens an **inline
   confirmation inside that row** (the question includes the session title); batch, empty and
   age-based actions use a top card naming the count and titles. While a confirmation is open,
@@ -322,6 +329,10 @@ import of any Harness Client package.
 
 ### Changelog
 
+- **1.0.3** — clean-up actions are split by scope: the toolbar keeps only the
+  selection-scoped actions (restore selected / delete selected), while "delete sessions older
+  than 30 days" and "empty the recycle bin" move into a **Danger zone** below the list, each
+  with its own explanation.
 - **1.0.2** — confirmations now name their target (single deletes happen inline in the row;
   batch cards name counts and titles; other rows are locked while a confirmation is open);
   age-based cleanup no longer deletes sessions with unknown timing; toolbar groups keep
