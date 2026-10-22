@@ -6,7 +6,7 @@
 // verified without a running DeepSeek Harness.
 //
 // Run with: node test/host-test.mjs
-import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rm, stat, utimes, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -216,6 +216,56 @@ check('purge removes an emptied project directory', purgedX.body.results?.[0]?.o
 
 const olderThan = await call(routes, 'POST', 'purge', { all: true, olderThanDays: 30 })
 check('empty purge is a no-op', olderThan.body.ok === true && olderThan.body.results.length === 0, JSON.stringify(olderThan.body))
+
+/* ------------------------------------------- run: age-based cleanup guard */
+
+const dayMs = 24 * 60 * 60 * 1000
+const oldAt = new Date(Date.now() - 40 * dayMs)
+
+// session-ancient: archived through the route, then its sidecar record is backdated.
+headers.push({ id: 'session-ancient', cwd: 'C:\\project', createdAt: 8, version: 4, isSeeded: false })
+await write(join(sessionsRoot, 'session-ancient', 'session.jsonl.zstd'), 'ancient')
+const ancient = await call(routes, 'POST', 'archive', { sessionId: 'session-ancient', title: 'ancient' })
+check('setup: ancient session archived', ancient.body.ok === true, JSON.stringify(ancient.body))
+
+// session-fallback: no sidecar record, but the log file itself is old.
+headers.push({ id: 'session-fallback', cwd: 'C:\\project', createdAt: 9, version: 4, isSeeded: false })
+const fallbackLog = join(sessionsRoot, 'session-fallback', 'session.jsonl.zstd')
+await write(fallbackLog, 'fallback')
+await utimes(fallbackLog, oldAt, oldAt)
+archived.add('session-fallback')
+await persistArchiveSet()
+
+// session-recent: archived just now, so it must survive an "older than 30 days" run.
+headers.push({ id: 'session-recent', cwd: 'C:\\project', createdAt: 10, version: 4, isSeeded: false })
+await write(join(sessionsRoot, 'session-recent', 'session.jsonl.zstd'), 'recent')
+const recent = await call(routes, 'POST', 'archive', { sessionId: 'session-recent', title: 'recent' })
+check('setup: recent session archived', recent.body.ok === true, JSON.stringify(recent.body))
+
+// Backdate the sidecar record last, so no later archive call can overwrite it.
+const binPath = join(home, 'session-recycle-bin.json')
+const binDoc = JSON.parse(await readFile(binPath, 'utf8'))
+binDoc.entries['session-ancient'].deletedAt = oldAt.toISOString()
+await writeFile(binPath, JSON.stringify(binDoc, null, 2), 'utf8')
+
+// session-unknown: archived with no sidecar record and no log file to date it.
+headers.push({ id: 'session-unknown', cwd: 'C:\\project', createdAt: 11, version: 4, isSeeded: false })
+archived.add('session-unknown')
+await persistArchiveSet()
+
+const aged = await call(routes, 'POST', 'purge', { all: true, olderThanDays: 30 })
+check('age cleanup deletes a session dated by its log mtime', (await exists(join(sessionsRoot, 'session-fallback'))) === false)
+check('age cleanup keeps a recently archived session', (await exists(join(sessionsRoot, 'session-recent'))) === true)
+check('age cleanup reports sessions with no usable time', aged.body.skipped?.unknownAge === 1, JSON.stringify(aged.body.skipped))
+check('age cleanup keeps a session with no usable time', (await call(routes, 'GET', 'list')).body.entries.some((entry) => entry.id === 'session-unknown'))
+
+/* The first instance cached the sidecar before it was backdated; a freshly loaded
+   instance must read the recorded deletion time from disk and honour it. */
+const ageReload = makeCtx()
+const agePlugin = await import(`${PACKAGE_URL}?age=1`)
+agePlugin.apply(ageReload.ctx, { home })
+await call(ageReload.routes, 'POST', 'purge', { all: true, olderThanDays: 30 })
+check('age cleanup deletes a session with an old deletion record', (await exists(join(sessionsRoot, 'session-ancient'))) === false)
 
 /* --------------------------------------------------- run: backend locate() */
 

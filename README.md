@@ -8,7 +8,7 @@
 ![license](https://img.shields.io/github/license/Afgkwyp/dsh-session-recycle-bin)
 ![dsh](https://img.shields.io/badge/DeepSeek%20Harness-0.2.1--rc.2-4b6bfb)
 ![node](https://img.shields.io/badge/node-%3E%3D22-43853d)
-![tests](https://img.shields.io/badge/fixture%20checks-32%2F32-2ea44f)
+![tests](https://img.shields.io/badge/fixture%20checks-39%2F39-2ea44f)
 
 > 零依赖、零构建、单文件宿主 + 单文件客户端。适用 DeepSeek Harness **0.2.1-rc.2**（Desktop / Web profile）。
 
@@ -35,7 +35,7 @@ DSH 自带的会话菜单只有 **重命名 / 分叉 / 归档**：归档只是�
 |---|---|
 | 会话头部（标题右侧工具行） | **垃圾桶按钮**：把当前会话移入回收站 |
 | 侧栏会话「⋯」菜单 | **删除会话**（红色，order 500，排在官方 pin / 重命名 / 分叉 / 归档 / 会话 ID 之后） |
-| 设置 → **会话回收站** | 归档会话集中管理：多选还原、永久删除、清空回收站、清理 30 天前；显示工作区路径、删除时间、日志体积、子代理会话数、「运行中」标记 |
+| 设置 → **会话回收站** | 归档会话集中管理：多选还原、永久删除、清空回收站、删除 30 天前的会话；显示工作区路径、删除时间、日志体积、子代理会话数、「运行中」标记 |
 
 - **软删除**：头部按钮或菜单项 → 确认 → 会话从侧栏消失，进入回收站。
   日志、子代理会话、投影缓存都还在，随时可以还原。
@@ -44,7 +44,12 @@ DSH 自带的会话菜单只有 **重命名 / 分叉 / 归档**：归档只是�
 - **还原**：一键移出归档集合，会话回到侧栏原来的位置——磁盘文件从未被触碰。
 - **永久删除**：真正删除磁盘数据（见下一节），并从归档 / 置顶 / 工作区成员中摘除引用，
   最后广播 `api-session/removed` 让侧栏当帧移除该行。
-- **批量清理**：多选批量还原 / 批量永久删除；「清空回收站」；「清理 30 天前」。
+- **批量清理**：多选批量还原 / 批量永久删除；「删除 30 天前的会话」；「清空回收站」。
+  按天清理只删「有可靠时间依据且确实够老」的会话：优先用删除记录，没有记录时用日志文件
+  的最后修改时间；两者都拿不到的会话一律保留，并在结果里报告数量。
+- **确认不会认错对象**：单条删除在该行**行内确认**（问句里就写着会话标题）；
+  批量 / 清空 / 按天清理用顶部确认卡，写明条数与目标标题；确认期间其它行的操作被锁住，
+  不会出现「点着 A 行、确认却删了 B 行」。
 - **不留空文件夹**：删除后若该会话所在的「项目目录」（`sessions/--C-Users-...--/`）
   已经空了，会一并删掉；插件激活时也会顺手清理历史遗留的空项目目录
   （只删真正为空的，`sessions` 根本身永不删除）。
@@ -76,6 +81,7 @@ DSH 自带的会话菜单只有 **重命名 / 分叉 / 归档**：归档只是�
 | 目录名与会话 id 不匹配 | 直接跳过并报告，**绝不猜路径** |
 | 待清理的项目目录不为空 | 保持原样，只删空目录 |
 | 子代理会话 | 随父会话一起删除 |
+| 「删除 30 天前的会话」遇到时间未知的条目 | 一律保留；优先用删除记录，其次用日志最后修改时间，两者都没有就不删（结果里报告数量） |
 
 永久删除的执行顺序是有意编排的，不能交换：
 
@@ -129,7 +135,7 @@ dsh plugin --profile <profile-name> add "C:/path/to/dsh-session-recycle-bin"
 ### 验证安装是否生效
 
 - 会话头部出现垃圾桶图标；侧栏「⋯」菜单出现「删除会话」；
-- 设置 → 会话回收站能列出已归档会话（底部显示 `$DSH_HOME` 与日志定位方式）；
+- 设置 → 会话回收站能列出已归档会话（底部显示数据目录，悬停可见日志定位方式）；
 - 宿主半激活后会在 `$DSH_HOME/plugin-session-recycle-bin.json` 写一条激活记录
   （构建号、seam、时间戳），排查「改了代码没生效」时先看它。
 
@@ -166,13 +172,18 @@ node test/host-test.mjs   # 或 npm test
 
 纯 Node、无依赖、不需要启动 Harness：用假服务跑真实 `index.js`，覆盖路由注册、
 回收站列表、归档、还原、永久删除（含子代理目录、投影缓存、工作区摘除、
-`api-session/removed` 广播）、空项目目录清理，以及后端提供/不提供 `locate()` 两条定位路径。
+`api-session/removed` 广播）、空项目目录清理、按天清理的时间判定
+（有记录 / 只有日志 mtime / 时间未知三种情况），以及后端提供/不提供 `locate()` 两条定位路径。
 
 ### 常见问题
 
 **删除了会话，为什么还留着一个空文件夹？**
 1.0.1 之前只删会话目录，不处理变空的「项目目录」；1.0.1 起删除后会自动收掉空项目目录，
 插件激活时也会清理历史遗留的空目录。升级后若仍看到，重载一次插件即可。
+
+**「删除 30 天前的会话」会不会误删刚归档的会话？**
+不会。它只删有可靠时间依据（删除记录，或日志文件最后修改时间）且确实早于 30 天的会话；
+如果某个会话既没有删除记录、日志也读不到时间，会被保留并在结果里提示数量。
 
 **点了删除，侧栏没马上消失？**
 永久删除成功会广播 `api-session/removed`，正常当帧移除；若页面版本较旧或列表未刷新，
@@ -198,6 +209,9 @@ node test/host-test.mjs   # 或 npm test
 
 ### 更新日志
 
+- **1.0.2** — 删除确认写明目标（单条改为行内确认，批量卡写明条数/标题，确认期间锁住其它行）；
+  「删除 30 天前的会话」修正时间判定，时间未知的条目不再被误删；工具栏分组避免「清空回收站」掉行；
+  设置页去掉 `locate()` 等实现术语、合并数据目录展示；子代理数量改为标签显示；禁用态按钮去红。
 - **1.0.1** — 永久删除后会清理变空的会话项目目录；插件激活时清理历史遗留空目录；仓库加入 fixture 自测。
 - **1.0.0** — 首个公开版本：头部垃圾桶、侧栏删除会话、回收站设置页（还原 / 永久删除 / 批量清理）。
 
@@ -227,6 +241,15 @@ its data from disk.
 "Delete" means *archive*, so it is always undoable. Only "Delete permanently" touches the
 disk, and it asks first.
 
+- **Batch cleanup**: multi-select restore and multi-select permanent delete, plus
+  "delete sessions older than 30 days" and "empty the recycle bin". Age-based cleanup only
+  removes sessions with a trustworthy date — the recorded deletion time, or the log file's
+  last-modified time as a fallback; sessions with neither are kept and reported.
+- **The confirmation always names its target**: deleting one session opens an **inline
+  confirmation inside that row** (the question includes the session title); batch, empty and
+  age-based actions use a top card naming the count and titles. While a confirmation is open,
+  the other rows' actions are locked, so a click can never silently retarget the deletion.
+
 ### What permanent deletion removes
 
 - the whole session directory `<DSH_HOME>/sessions/<project>/<session-id>/`
@@ -254,6 +277,8 @@ session's workspace (a workspace may be shared by several sessions), and forked 
   the documented JSONL layout is scanned; a directory must be named exactly like the session
   id or the plugin refuses instead of guessing.
 - A project directory is removed only when it is empty.
+- Age-based cleanup never guesses: a session with no recorded deletion time and no readable
+  log timestamp is kept (the response reports how many were kept).
 - Order is deliberate and must not be swapped: **release → stop → flush barrier → remove
   files → clean registry → emit `api-session/removed`**.
 
@@ -283,8 +308,9 @@ node test/host-test.mjs
 Runs the real `index.js` against fake Cordis services and a disposable `$DSH_HOME` — no
 Harness and no dependencies required. Covers route registration, recycle-bin listing,
 archive, restore, permanent deletion (session + subagent directories, projection cache,
-workspace detach, `api-session/removed`), empty-project-directory cleanup, and both log
-lookup paths (`locate()` present / absent).
+workspace detach, `api-session/removed`), empty-project-directory cleanup, the three
+age-cleanup cases (recorded time / log mtime / unknown), and both log lookup paths
+(`locate()` present / absent).
 
 ### Compatibility
 
@@ -296,6 +322,12 @@ import of any Harness Client package.
 
 ### Changelog
 
+- **1.0.2** — confirmations now name their target (single deletes happen inline in the row;
+  batch cards name counts and titles; other rows are locked while a confirmation is open);
+  age-based cleanup no longer deletes sessions with unknown timing; toolbar groups keep
+  "empty bin" from wrapping onto its own line; the settings page drops implementation jargon
+  (`locate()`) and merges the data-directory line; subagent counts render as a tag; disabled
+  danger buttons lose their red tint.
 - **1.0.1** — prune the project directory once its last session is deleted; sweep leftover
   empty project directories on activation; add the fixture test suite.
 - **1.0.0** — first public release: header trash button, sidebar delete row, recycle-bin

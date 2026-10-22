@@ -38,7 +38,7 @@ const STOP_WAIT_MS = 8000
 /** 读取标题时最多探测多少个冷会话（避免打开很多会话）。 */
 const TITLE_PROBE_LIMIT = 30
 /** 宿主半构建标记：写进激活记录，用来确认运行的是哪一版代码。 */
-const BUILD = 'recycle-bin@3'
+const BUILD = 'recycle-bin@4'
 
 /** 本宿主插件需要的服务。 */
 export const inject = ['connection', 'sessionPersistence', 'workspaceRegistry']
@@ -553,19 +553,35 @@ async function purgeRoute(runtime, body) {
   }
 
   const bin = await runtime.bin.load()
+  const catalog = await loadCatalog(ctx)
   const olderThanDays = Number.isFinite(body?.olderThanDays) ? Math.max(0, body.olderThanDays) : undefined
+  /** 因「没有可靠的删除时间」而被 30 天清理规则跳过的会话数。 */
+  let skippedUnknownAge = 0
   if (olderThanDays !== undefined) {
     const cutoff = Date.now() - olderThanDays * 24 * 60 * 60 * 1000
-    ids = ids.filter((id) => {
-      const at = Date.parse(bin.get(id)?.deletedAt ?? '')
-      return !Number.isFinite(at) || at <= cutoff
-    })
+    /** @type {string[]} */
+    const eligible = []
+    for (const id of ids) {
+      let at = Date.parse(bin.get(id)?.deletedAt ?? '')
+      if (!Number.isFinite(at)) {
+        /* 没有旁路记录时用日志文件的修改时间兜底；仍拿不到时间就绝不删——
+           「30 天前」不能把时间未知的会话一并带走。 */
+        const header = catalog.headers.get(id)
+        const logFile = header === undefined ? undefined : await locateSessionFile(ctx, runtime.home, header)
+        at = logFile === undefined ? Number.NaN : await fileMtimeMs(logFile)
+      }
+      if (!Number.isFinite(at)) {
+        skippedUnknownAge += 1
+        continue
+      }
+      if (at <= cutoff) eligible.push(id)
+    }
+    ids = eligible
   }
   if (ids.length === 0) {
-    return { status: 200, body: { ok: true, results: [], purgedBytes: 0 } }
+    return { status: 200, body: { ok: true, results: [], purgedBytes: 0, failed: 0, skipped: { unknownAge: skippedUnknownAge } } }
   }
 
-  const catalog = await loadCatalog(ctx)
   /** @type {any[]} */
   const results = []
   let purgedBytes = 0
@@ -580,7 +596,7 @@ async function purgeRoute(runtime, body) {
 
   const failed = results.filter((entry) => entry.ok !== true).length
   ctx.logger?.info?.(`session-recycle-bin: purged ${results.length - failed}/${results.length} session(s)`)
-  return { status: 200, body: { ok: true, results, purgedBytes, failed } }
+  return { status: 200, body: { ok: true, results, purgedBytes, failed, skipped: { unknownAge: skippedUnknownAge } } }
 }
 
 /* --------------------------------------------------------------- 永久删除实现 */
@@ -1055,6 +1071,16 @@ async function fileSize(path) {
     return (await fsStat(path)).size
   } catch {
     return 0
+  }
+}
+
+/** 文件修改时间（毫秒）；不存在或失败返回 NaN。 */
+async function fileMtimeMs(path) {
+  if (path.length === 0) return Number.NaN
+  try {
+    return (await fsStat(path)).mtimeMs
+  } catch {
+    return Number.NaN
   }
 }
 

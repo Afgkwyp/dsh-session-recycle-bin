@@ -61,14 +61,21 @@ window.__ModuleLoader__.load({
         'confirm.stopAndArchive': '停止并删除',
         'confirm.done': '已移入回收站。',
         'purge.title': '永久删除 {count} 个会话？',
-        'purge.titleAll': '清空回收站？',
-        'purge.titleOlder': '清理 {days} 天前的归档会话？',
-        'purge.desc': '将真正删除这些会话在磁盘上的日志、子代理会话与投影缓存。此操作不可撤销，删除后无法找回。',
-        'purge.descAll': '将真正删除回收站里全部会话在磁盘上的日志、子代理会话与投影缓存。此操作不可撤销。',
+        'purge.titleOne': '永久删除「{title}」？',
+        'purge.titleAll': '清空回收站（{count} 个会话）？',
+        'purge.titleOlder': '删除 {days} 天前的归档会话？',
+        'purge.desc': '将真正删除这些会话在磁盘上的日志、子代理会话与缓存数据。此操作不可撤销。',
+        'purge.descOne': '将真正删除「{title}」在磁盘上的日志、子代理会话与缓存数据。此操作不可撤销。',
+        'purge.descAll': '将真正删除回收站里全部 {count} 个会话的日志、子代理会话与缓存数据。此操作不可撤销。',
+        'purge.descOlder': '将删除归档时间早于 {days} 天的会话日志、子代理会话与缓存数据；没有删除记录的按日志最后修改时间判断，两者都拿不到时间的会话会保留。此操作不可撤销。',
+        'purge.skippedUnknown': '另有 {count} 个会话缺少可用时间信息，已保留。',
         'purge.action': '永久删除',
         'purge.pending': '正在删除…',
         'purge.done': '已永久删除 {count} 个会话，释放 {size}。',
         'purge.partial': '{count} 个会话未能删除：{ids}',
+        'row.confirmTitle': '永久删除「{title}」？',
+        'row.confirmDesc': '将删除磁盘上的日志、{count} 个子代理会话与缓存数据，不可撤销。',
+        'row.confirmDescNoSub': '将删除磁盘上的日志与缓存数据，不可撤销。',
         'page.navLabel': '会话回收站',
         'page.title': '会话回收站',
         'page.desc': '归档会话集中管理：删除的会话先放进这里，可随时还原；确认不要了再真正删掉磁盘上的日志。',
@@ -76,15 +83,16 @@ window.__ModuleLoader__.load({
         'page.loading': '正在读取回收站…',
         'page.empty': '回收站是空的。删除会话后会出现在这里。',
         'page.count': '{count} 个会话 · 日志 {size}',
-        'page.location': '日志位置：{path}',
-        'page.locatorBackend': '日志定位：存储后端 locate()',
-        'page.locatorScan': '日志定位：磁盘目录扫描',
+        'page.location': '数据目录：{path}',
+        'page.locatorTag': '日志定位：{mode}',
+        'page.locatorBackend': '后端接口',
+        'page.locatorScan': '磁盘目录扫描',
         'page.selectAll': '全选',
         'page.selected': '已选 {count} 个',
         'page.restore': '还原',
         'page.purge': '永久删除',
         'page.emptyBin': '清空回收站',
-        'page.purgeOlder': '清理 30 天前',
+        'page.purgeOlder': '删除 30 天前的会话',
         'page.restoring': '正在还原…',
         'page.restored': '已还原 {count} 个会话。',
         'page.restoreFailed': '还原失败：{message}',
@@ -92,7 +100,7 @@ window.__ModuleLoader__.load({
         'page.running': '运行中',
         'page.noLog': '日志缺失',
         'page.unknownTime': '时间未知',
-        'page.subagents': '{count} 个子代理会话',
+        'page.subagents': '{count} 个子代理',
         'cancel': '取消',
         'close': '关闭',
         'confirm.failed': '操作失败：{message}',
@@ -109,14 +117,21 @@ window.__ModuleLoader__.load({
         'confirm.stopAndArchive': 'Stop and delete',
         'confirm.done': 'Moved to the recycle bin.',
         'purge.title': 'Permanently delete {count} session(s)?',
-        'purge.titleAll': 'Empty the recycle bin?',
-        'purge.titleOlder': 'Delete archived sessions older than {days} days?',
-        'purge.desc': 'This removes their logs, subagent sessions and projection cache from disk. It cannot be undone.',
-        'purge.descAll': 'This removes the logs, subagent sessions and projection cache of every session in the recycle bin. It cannot be undone.',
+        'purge.titleOne': 'Permanently delete “{title}”?',
+        'purge.titleAll': 'Empty the recycle bin ({count} session(s))?',
+        'purge.titleOlder': 'Delete sessions archived more than {days} days ago?',
+        'purge.desc': 'This removes their logs, subagent sessions and cached data from disk. It cannot be undone.',
+        'purge.descOne': 'This removes “{title}” — its log, subagent sessions and cached data — from disk. It cannot be undone.',
+        'purge.descAll': 'This removes the logs, subagent sessions and cached data of all {count} session(s) in the recycle bin. It cannot be undone.',
+        'purge.descOlder': 'This removes the logs, subagent sessions and cached data of sessions archived more than {days} days ago. When no deletion record exists, the log’s last-modified time is used; sessions with neither are kept. It cannot be undone.',
+        'purge.skippedUnknown': '{count} session(s) had no usable time information and were kept.',
         'purge.action': 'Delete permanently',
         'purge.pending': 'Deleting…',
         'purge.done': 'Permanently deleted {count} session(s), freeing {size}.',
         'purge.partial': '{count} session(s) could not be deleted: {ids}',
+        'row.confirmTitle': 'Permanently delete “{title}”?',
+        'row.confirmDesc': 'Removes its log, {count} subagent session(s) and cached data from disk. This cannot be undone.',
+        'row.confirmDescNoSub': 'Removes its log and cached data from disk. This cannot be undone.',
         'page.navLabel': 'Recycle bin',
         'page.title': 'Session recycle bin',
         'page.desc': 'Archived sessions in one place: deleted sessions land here first and can be restored any time; delete their logs only once you are sure.',
@@ -124,15 +139,16 @@ window.__ModuleLoader__.load({
         'page.loading': 'Reading the recycle bin…',
         'page.empty': 'The recycle bin is empty. Deleted sessions show up here.',
         'page.count': '{count} session(s) · {size} of logs',
-        'page.location': 'Logs: {path}',
-        'page.locatorBackend': 'Log lookup: persistence backend locate()',
-        'page.locatorScan': 'Log lookup: on-disk directory scan',
+        'page.location': 'Data directory: {path}',
+        'page.locatorTag': 'Log lookup: {mode}',
+        'page.locatorBackend': 'backend interface',
+        'page.locatorScan': 'on-disk directory scan',
         'page.selectAll': 'Select all',
         'page.selected': '{count} selected',
         'page.restore': 'Restore',
         'page.purge': 'Delete permanently',
         'page.emptyBin': 'Empty recycle bin',
-        'page.purgeOlder': 'Delete 30-day-old',
+        'page.purgeOlder': 'Delete sessions older than 30 days',
         'page.restoring': 'Restoring…',
         'page.restored': 'Restored {count} session(s).',
         'page.restoreFailed': 'Restore failed: {message}',
@@ -140,7 +156,7 @@ window.__ModuleLoader__.load({
         'page.running': 'Running',
         'page.noLog': 'Log missing',
         'page.unknownTime': 'unknown time',
-        'page.subagents': '{count} subagent session(s)',
+        'page.subagents': '{count} subagent(s)',
         'cancel': 'Cancel',
         'close': 'Close',
         'confirm.failed': 'The operation failed: {message}',
@@ -191,6 +207,7 @@ window.__ModuleLoader__.load({
       '.srb-btnToolbar:hover:not(:disabled){background:var(--dsw-alias-button-tool-bar-hover)}',
       '.srb-btnIcon{display:inline-flex;width:16px;height:16px;align-items:center;justify-content:center;flex:none}',
       '.srb-btnDanger{color:var(--dsw-alias-state-error-primary)}',
+      '.srb-btnDanger:disabled{color:var(--dsw-alias-label-tertiary)}',
       '.srb-btnDangerFill{background:var(--dsw-alias-state-error-primary);',
       'color:var(--dsw-alias-label-primary-foreground)}',
       '.srb-btnDangerFill:hover:not(:disabled){background:var(--dsw-alias-state-error-primary);opacity:.9}',
@@ -256,6 +273,9 @@ window.__ModuleLoader__.load({
       '.srb-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;',
       'border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1);border:.5px solid var(--dsw-alias-border-l2)}',
       '.srb-spacer{flex:1 1 auto;min-width:8px}',
+      '.srb-toolGroup{display:flex;align-items:center;gap:6px;flex-wrap:wrap}',
+      '.srb-toolGroupEnd{margin-left:auto}',
+      '.srb-toolDivider{flex:none;width:.5px;height:18px;background:var(--dsw-alias-border-l2);margin:0 2px}',
       '.srb-muted{font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}',
       '.srb-check{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:18px;',
       'color:var(--dsw-alias-label-secondary);cursor:pointer;user-select:none}',
@@ -281,6 +301,13 @@ window.__ModuleLoader__.load({
       '.srb-tag{display:inline-flex;align-items:center;height:18px;padding:0 6px;margin-left:6px;',
       'border-radius:999px;font-size:11px;line-height:18px;color:var(--dsw-alias-state-business-primary);',
       'background:var(--dsw-alias-interactive-bg-hover)}',
+      '.srb-tagSub{display:inline-flex;align-items:center;height:18px;padding:0 6px;margin-left:6px;',
+      'border-radius:999px;font-size:11px;line-height:18px;font-weight:400;',
+      'color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-interactive-bg-hover)}',
+      '.srb-rowConfirm{display:flex;flex-direction:column;gap:8px;margin-top:6px;padding:8px 10px;',
+      'border-radius:var(--dsw-radius-sm);border:.5px solid var(--dsw-alias-state-error-primary)}',
+      '.srb-rowConfirmText{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-state-error-primary)}',
+      '.srb-rowConfirmActions{display:flex;align-items:center;justify-content:flex-end;gap:6px}',
       '.srb-rowActions{display:flex;align-items:center;gap:6px;flex:none}',
       '.srb-empty{margin:0;padding:24px 12px;text-align:center;font-size:13px;line-height:20px;',
       'color:var(--dsw-alias-label-secondary);border:.5px dashed var(--dsw-alias-border-l3);',
@@ -380,7 +407,7 @@ window.__ModuleLoader__.load({
      * @param {{ variant?: 'primary'|'ghost'|'outline'|'toolbar', size?: 'md'|'sm',
      *   danger?: boolean, fill?: boolean, icon?: any, children?: any }} props
      */
-    function SrbButton({ variant = 'ghost', size = 'md', danger = false, fill = false, icon = null, children, ...rest }) {
+    function SrbButton({ variant = 'ghost', size = 'md', danger = false, fill = false, icon = null, children, buttonRef = null, ...rest }) {
       const variantClass = variant === 'primary'
         ? 'srb-btnPrimary'
         : variant === 'outline'
@@ -397,7 +424,7 @@ window.__ModuleLoader__.load({
       ].filter((part) => part !== null).join(' ')
       return h(
         'button',
-        { type: 'button', className, ...rest },
+        { type: 'button', className, ref: buttonRef, ...rest },
         icon === null ? null : h('span', { className: 'srb-btnIcon' }, icon),
         children,
       )
@@ -758,16 +785,19 @@ window.__ModuleLoader__.load({
     }
 
     /**
-     * 设置页里的永久删除确认卡。
+     * 设置页里的批量永久删除确认卡（多选 / 清空 / 按天清理）。
      *
      * 刻意**内联渲染**在设置页内容里，而不是 `shell.overlay` 浮层：设置面板本身是
      * 一个位于浮层之上的模态层，浮层里的对话框会被它挡住（实测）。内联卡片处在这
      * 个层里面，永远可见，也不依赖任何宿主的 z-index。
+     * 单条会话的删除走行内确认（见 RowPurgeConfirm），不会用这张卡。
      */
     function PurgeConfirmCard({ request, t, busy, error, onCancel, onConfirm }) {
       const cardRef = React.useRef(null)
+      const confirmRef = React.useRef(null)
       React.useEffect(() => {
         cardRef.current?.scrollIntoView?.({ block: 'nearest' })
+        confirmRef.current?.focus?.()
         const onKeyDown = (event) => {
           if (event.key !== 'Escape' || busy) return
           event.preventDefault()
@@ -777,12 +807,23 @@ window.__ModuleLoader__.load({
         return () => document.removeEventListener('keydown', onKeyDown, true)
       }, [busy])
 
+      const titles = Array.isArray(request.titles) ? request.titles.filter((title) => typeof title === 'string' && title.length > 0) : []
+      const count = request.mode === 'ids' ? request.ids.length : (Number.isFinite(request.count) ? request.count : 0)
+      const single = request.mode === 'ids' && count === 1 ? titles[0] : undefined
       const title = request.mode === 'all'
-        ? t('purge.titleAll')
+        ? t('purge.titleAll', { count })
         : request.mode === 'older'
           ? t('purge.titleOlder', { days: request.days })
-          : t('purge.title', { count: request.ids.length })
-      const description = request.mode === 'all' ? t('purge.descAll') : t('purge.desc')
+          : single === undefined
+            ? t('purge.title', { count })
+            : t('purge.titleOne', { title: single })
+      const description = request.mode === 'all'
+        ? t('purge.descAll', { count })
+        : request.mode === 'older'
+          ? t('purge.descOlder', { days: request.days })
+          : single === undefined
+            ? t('purge.desc')
+            : t('purge.descOne', { title: single })
 
       return h(
         'div',
@@ -797,10 +838,65 @@ window.__ModuleLoader__.load({
         h(
           'div',
           { className: 'srb-confirmActions' },
-          h(SrbButton, { variant: 'outline', size: 'sm', disabled: busy, onClick: onCancel }, t('cancel')),
+          h(SrbButton, { variant: 'ghost', size: 'sm', disabled: busy, onClick: onCancel }, t('cancel')),
           h(
             SrbButton,
-            { variant: 'outline', size: 'sm', danger: true, icon: h(TrashIcon, { size: 14 }), disabled: busy, onClick: onConfirm },
+            {
+              variant: 'outline',
+              size: 'sm',
+              danger: true,
+              icon: h(TrashIcon, { size: 14 }),
+              disabled: busy,
+              onClick: onConfirm,
+              buttonRef: confirmRef,
+            },
+            busy ? t('purge.pending') : t('purge.action'),
+          ),
+        ),
+      )
+    }
+
+    /**
+     * 行内确认卡：只删一条会话时使用。目标标题就在这一行里，
+     * 不移动页面布局、不把列表推走，也不会误删成别的行。
+     */
+    function RowPurgeConfirm({ entry, t, busy, onCancel, onConfirm }) {
+      const confirmRef = React.useRef(null)
+      React.useEffect(() => {
+        confirmRef.current?.focus?.()
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape' || busy) return
+          event.preventDefault()
+          onCancel()
+        }
+        document.addEventListener('keydown', onKeyDown, true)
+        return () => document.removeEventListener('keydown', onKeyDown, true)
+      }, [busy])
+
+      const description = entry.subagentCount > 0
+        ? t('row.confirmDesc', { count: entry.subagentCount })
+        : t('row.confirmDescNoSub')
+
+      return h(
+        'div',
+        { className: 'srb-rowConfirm', role: 'alertdialog', 'aria-label': t('row.confirmTitle', { title: entry.title }) },
+        h('p', { className: 'srb-rowConfirmText' }, t('row.confirmTitle', { title: entry.title })),
+        h('p', { className: 'srb-confirmDesc' }, description),
+        h(
+          'div',
+          { className: 'srb-rowConfirmActions' },
+          h(SrbButton, { variant: 'ghost', size: 'sm', disabled: busy, onClick: onCancel }, t('cancel')),
+          h(
+            SrbButton,
+            {
+              variant: 'outline',
+              size: 'sm',
+              danger: true,
+              icon: h(TrashIcon, { size: 14 }),
+              disabled: busy,
+              onClick: onConfirm,
+              buttonRef: confirmRef,
+            },
             busy ? t('purge.pending') : t('purge.action'),
           ),
         ),
@@ -825,6 +921,7 @@ window.__ModuleLoader__.load({
       const [error, setError] = React.useState(null)
       const [busy, setBusy] = React.useState(false)
       const [confirm, setConfirm] = React.useState(null)
+      const [rowConfirm, setRowConfirm] = React.useState(null)
       const [purgeError, setPurgeError] = React.useState(null)
       const [purging, setPurging] = React.useState(false)
       const aliveRef = React.useRef(true)
@@ -908,16 +1005,35 @@ window.__ModuleLoader__.load({
           })
       }
 
-      /** 请求一次永久删除：只在页面内展示确认卡，不经过浮层。 */
+      /** 打开批量 / 清空 / 按天清理的顶部确认卡。 */
       const requestPurge = (request) => {
+        setRowConfirm(null)
         setPurgeError(null)
         setConfirm(request)
       }
 
-      /** 执行确认卡上的永久删除。 */
-      const runPurge = () => {
-        const request = confirm
-        if (request === null || purging) return
+      /** 打开单条会话的行内确认（目标标题就在该行里）。 */
+      const requestRowPurge = (entry) => {
+        setConfirm(null)
+        setPurgeError(null)
+        setRowConfirm(entry)
+      }
+
+      /** 取消当前确认；执行中不允许取消。 */
+      const cancelConfirm = () => {
+        if (purging) return
+        setConfirm(null)
+        setRowConfirm(null)
+        setPurgeError(null)
+      }
+
+      /**
+       * 执行永久删除。
+       * @param {{ mode: 'ids' | 'all' | 'older', ids?: string[], days?: number, titles?: string[] }} target
+       */
+      const runPurge = (target) => {
+        const request = target
+        if (request === null || request === undefined || purging) return
         setPurging(true)
         setPurgeError(null)
         const body = request.mode === 'ids'
@@ -934,14 +1050,17 @@ window.__ModuleLoader__.load({
             }
             const results = Array.isArray(payload.results) ? payload.results : []
             const failed = results.filter((entry) => entry.ok !== true)
+            const skippedUnknownAge = Number.isFinite(payload.skipped?.unknownAge) ? payload.skipped.unknownAge : 0
             setConfirm(null)
+            setRowConfirm(null)
             setSelected(new Set())
             if (failed.length > 0) {
               setNotice(null)
               setError(t('purge.partial', { count: failed.length, ids: failed.map((entry) => entry.id).join('、') }))
             } else {
               setError(null)
-              setNotice(t('purge.done', { count: results.length, size: formatBytes(payload.purgedBytes ?? 0) }))
+              const done = t('purge.done', { count: results.length, size: formatBytes(payload.purgedBytes ?? 0) })
+              setNotice(skippedUnknownAge > 0 ? `${done} ${t('purge.skippedUnknown', { count: skippedUnknownAge })}` : done)
             }
             notifyChanged()
             reload()
@@ -954,22 +1073,26 @@ window.__ModuleLoader__.load({
 
       const row = (entry) => {
         const checked = selected.has(entry.id)
+        const confirming = rowConfirm !== null && rowConfirm.id === entry.id
+        /* 任何确认打开或正在删除时，其它行的操作都锁住，避免确认目标被静默换掉。 */
+        const locked = busy || purging || confirm !== null || (rowConfirm !== null && !confirming)
         const meta = [
           entry.workspacePath === null ? null : shortenPath(entry.workspacePath),
           entry.deletedAt === null ? t('page.unknownTime') : formatTime(entry.deletedAt),
           entry.logBytes > 0 ? formatBytes(entry.logBytes) : t('page.noLog'),
-          entry.subagentCount > 0 ? t('page.subagents', { count: entry.subagentCount }) : null,
         ].filter((part) => part !== null).join(' · ')
         return h(
           'li',
           { key: entry.id, className: 'srb-row' },
-          h('input', {
-            type: 'checkbox',
-            className: 'srb-rowCheck',
-            checked,
-            'aria-label': entry.title,
-            onChange: () => toggle(entry.id),
-          }),
+          confirming
+            ? null
+            : h('input', {
+                type: 'checkbox',
+                className: 'srb-rowCheck',
+                checked,
+                'aria-label': entry.title,
+                onChange: () => toggle(entry.id),
+              }),
           h(
             'div',
             { className: 'srb-rowMain' },
@@ -978,36 +1101,50 @@ window.__ModuleLoader__.load({
               { className: 'srb-rowTitle', title: entry.title },
               entry.title,
               entry.running === true ? h('span', { className: 'srb-tag' }, t('page.running')) : null,
+              entry.subagentCount > 0
+                ? h('span', { className: 'srb-tagSub' }, t('page.subagents', { count: entry.subagentCount }))
+                : null,
             ),
             h('span', { className: 'srb-rowMeta', title: meta }, meta),
+            confirming
+              ? h(RowPurgeConfirm, {
+                  entry,
+                  t,
+                  busy: purging,
+                  onCancel: cancelConfirm,
+                  onConfirm: () => runPurge({ mode: 'ids', ids: [entry.id], titles: [entry.title] }),
+                })
+              : null,
           ),
-          h(
-            'div',
-            { className: 'srb-rowActions' },
-            h(
-              SrbButton,
-              {
-                variant: 'outline',
-                size: 'sm',
-                icon: h(RestoreIcon, null),
-                disabled: busy,
-                onClick: () => restore([entry.id]),
-              },
-              t('page.restore'),
-            ),
-            h(
-              SrbButton,
-              {
-                variant: 'outline',
-                size: 'sm',
-                danger: true,
-                icon: h(TrashIcon, { size: 14 }),
-                disabled: busy || purging,
-                onClick: () => requestPurge({ mode: 'ids', ids: [entry.id] }),
-              },
-              t('page.purge'),
-            ),
-          ),
+          confirming
+            ? null
+            : h(
+                'div',
+                { className: 'srb-rowActions' },
+                h(
+                  SrbButton,
+                  {
+                    variant: 'outline',
+                    size: 'sm',
+                    icon: h(RestoreIcon, null),
+                    disabled: locked,
+                    onClick: () => restore([entry.id]),
+                  },
+                  t('page.restore'),
+                ),
+                h(
+                  SrbButton,
+                  {
+                    variant: 'outline',
+                    size: 'sm',
+                    danger: true,
+                    icon: h(TrashIcon, { size: 14 }),
+                    disabled: locked,
+                    onClick: () => requestRowPurge(entry),
+                  },
+                  t('page.purge'),
+                ),
+              ),
         )
       }
 
@@ -1047,12 +1184,8 @@ window.__ModuleLoader__.load({
                 t,
                 busy: purging,
                 error: purgeError,
-                onCancel: () => {
-                  if (purging) return
-                  setConfirm(null)
-                  setPurgeError(null)
-                },
-                onConfirm: runPurge,
+                onCancel: cancelConfirm,
+                onConfirm: () => runPurge(confirm),
               }),
           state.phase === 'loading' ? h('p', { className: 'srb-notice' }, t('page.loading')) : null,
           state.phase === 'error'
@@ -1065,7 +1198,12 @@ window.__ModuleLoader__.load({
                 h(
                   'label',
                   { className: 'srb-check' },
-                  h('input', { type: 'checkbox', checked: allSelected, onChange: toggleAll, disabled: entries.length === 0 }),
+                  h('input', {
+                    type: 'checkbox',
+                    checked: allSelected,
+                    onChange: toggleAll,
+                    disabled: entries.length === 0 || busy || purging || confirm !== null || rowConfirm !== null,
+                  }),
                   t('page.selectAll'),
                 ),
                 h(
@@ -1077,48 +1215,62 @@ window.__ModuleLoader__.load({
                 ),
                 h('span', { className: 'srb-spacer' }),
                 h(
-                  SrbButton,
-                  {
-                    variant: 'outline',
-                    size: 'sm',
-                    icon: h(RestoreIcon, null),
-                    disabled: busy || selectedIds.length === 0,
-                    onClick: () => restore(selectedIds),
-                  },
-                  busy ? t('page.restoring') : t('page.restore'),
+                  'span',
+                  { className: 'srb-toolGroup' },
+                  h(
+                    SrbButton,
+                    {
+                      variant: 'outline',
+                      size: 'sm',
+                      icon: h(RestoreIcon, null),
+                      disabled: busy || purging || selectedIds.length === 0 || confirm !== null || rowConfirm !== null,
+                      onClick: () => restore(selectedIds),
+                    },
+                    busy ? t('page.restoring') : t('page.restore'),
+                  ),
+                  h(
+                    SrbButton,
+                    {
+                      variant: 'outline',
+                      size: 'sm',
+                      danger: true,
+                      icon: h(TrashIcon, { size: 14 }),
+                      disabled: busy || purging || selectedIds.length === 0 || confirm !== null || rowConfirm !== null,
+                      onClick: () => requestPurge({
+                        mode: 'ids',
+                        ids: selectedIds,
+                        titles: entries.filter((entry) => selected.has(entry.id)).map((entry) => entry.title),
+                      }),
+                    },
+                    t('page.purge'),
+                  ),
                 ),
+                h('span', { className: 'srb-toolDivider' }),
                 h(
-                  SrbButton,
-                  {
-                    variant: 'outline',
-                    size: 'sm',
-                    danger: true,
-                    icon: h(TrashIcon, { size: 14 }),
-                    disabled: busy || purging || selectedIds.length === 0,
-                    onClick: () => requestPurge({ mode: 'ids', ids: selectedIds }),
-                  },
-                  t('page.purge'),
-                ),
-                h(
-                  SrbButton,
-                  {
-                    variant: 'ghost',
-                    size: 'sm',
-                    disabled: busy || purging || entries.length === 0,
-                    onClick: () => requestPurge({ mode: 'older', days: RETENTION_DAYS }),
-                  },
-                  t('page.purgeOlder'),
-                ),
-                h(
-                  SrbButton,
-                  {
-                    variant: 'ghost',
-                    size: 'sm',
-                    danger: true,
-                    disabled: busy || purging || entries.length === 0,
-                    onClick: () => requestPurge({ mode: 'all' }),
-                  },
-                  t('page.emptyBin'),
+                  'span',
+                  { className: 'srb-toolGroup' },
+                  h(
+                    SrbButton,
+                    {
+                      variant: 'ghost',
+                      size: 'sm',
+                      danger: true,
+                      disabled: busy || purging || entries.length === 0 || confirm !== null || rowConfirm !== null,
+                      onClick: () => requestPurge({ mode: 'older', days: RETENTION_DAYS }),
+                    },
+                    t('page.purgeOlder'),
+                  ),
+                  h(
+                    SrbButton,
+                    {
+                      variant: 'ghost',
+                      size: 'sm',
+                      danger: true,
+                      disabled: busy || purging || entries.length === 0 || confirm !== null || rowConfirm !== null,
+                      onClick: () => requestPurge({ mode: 'all', count: entries.length }),
+                    },
+                    t('page.emptyBin'),
+                  ),
                 ),
               )
             : null,
@@ -1129,13 +1281,19 @@ window.__ModuleLoader__.load({
               ? h('p', { className: 'srb-empty' }, t('page.empty'))
               : h('ul', { className: 'srb-list' }, entries.map(row))
             : null,
-          state.home === null ? null : h('p', { className: 'srb-link' }, t('page.location', { path: state.home })),
-          state.locator === null
+          state.home === null
             ? null
             : h(
                 'p',
-                { className: 'srb-link' },
-                state.locator === 'backend-locate' ? t('page.locatorBackend') : t('page.locatorScan'),
+                {
+                  className: 'srb-link',
+                  title: state.locator === null
+                    ? undefined
+                    : t('page.locatorTag', {
+                        mode: state.locator === 'backend-locate' ? t('page.locatorBackend') : t('page.locatorScan'),
+                      }),
+                },
+                t('page.location', { path: state.home }),
               ),
         ),
       )
